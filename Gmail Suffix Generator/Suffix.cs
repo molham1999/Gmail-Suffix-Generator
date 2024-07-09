@@ -1,48 +1,61 @@
-﻿using Microsoft.VisualBasic.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Gmail_Suffix_Generator
 {
     public class Suffix
     {
         private const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        private const string gmail = "@gmail.com";
+        private const char suffix = '+';
 
-        private string CreatePlusEmail(int length)
+
+        private static string CreateSuffix(int length)
         {
-            StringBuilder _stringBuilder = new();
-            Random _random = new(); 
+            StringBuilder stringBuilder = new();
+            Random random = new();
             while (0 < length--)
             {
-                _stringBuilder.Append(valid[_random.Next(valid.Length)]);
+                stringBuilder.Append(valid[random.Next(valid.Length)]);
             }
-            return _stringBuilder.ToString();
+            return stringBuilder.ToString();
         }
 
-        public string GeneratorEmail(string email, int lengthAddToEmail, int countGeneratorEmail)
+        public static string GeneratorEmail(string email, int lengthAddToEmail, int countGeneratorEmail)
         {
-            if(!string.IsNullOrEmpty(email) && email.Contains('@'))
-            {
-                StringBuilder _stringBuilder = new();
-                int indexRemove = email.IndexOf('@');
-                string newemial = email[..indexRemove];
+            StringBuilder stringBuilder = new();
 
+            if (CheckEmailValid(email))
+            {
                 if (countGeneratorEmail > 0)
                 {
                     for (int i = 0; i < countGeneratorEmail; i++)
                     {
-                        string result = CreatePlusEmail(lengthAddToEmail);
-                        string newEmail = $"{newemial}+{result}@gmail.com";
-                        _stringBuilder.Append(newEmail + Environment.NewLine);
+                        stringBuilder.Append(InitializationEmail(email));
+                        stringBuilder.Append(suffix);
+                        stringBuilder.Append(CreateSuffix(lengthAddToEmail));
+                        stringBuilder.Append(gmail);
+                        stringBuilder.Append(Environment.NewLine);
                     }
                 }
-                else { return "Count Generator Email Invalid\n"; }
-                return _stringBuilder.ToString();
+                else { throw new Exception("Count Generator Email Invalid\n"); }
             }
-            else { return "Email Invalid\n"; }
+            else throw new Exception("Email Invalid\n");
+
+            return stringBuilder.ToString();
+        }
+
+        private static bool CheckEmailValid(string email)
+        {
+            if (!string.IsNullOrEmpty(email) && email.Contains('@'))
+                return true;
+            else 
+                return false;
+        }
+
+        private static string InitializationEmail(string email)
+        {
+            int indexRemove = email.IndexOf('@');
+            return email[..indexRemove];
         }
     }
 }
